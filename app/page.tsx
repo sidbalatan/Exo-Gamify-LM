@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { Rocket } from "lucide-react"
+import { UserButton } from "@clerk/nextjs"
+import { clerkPublishableKeyOrNull } from "@/lib/clerk-config"
 import { MissionHUD } from "@/components/xquest/mission-hud"
 import { GaiaScanner } from "@/components/xquest/gaia-scanner"
 import { TransitToss } from "@/components/xquest/transit-toss"
@@ -19,6 +21,7 @@ const tabProgress: Record<string, number> = {
 
 export default function XQuestPage() {
   const [activeTab, setActiveTab] = useState("scout")
+  const showClerkChrome = clerkPublishableKeyOrNull() !== null
 
   return (
     <main className="min-h-screen bg-background pb-24">
@@ -41,10 +44,30 @@ export default function XQuestPage() {
               </p>
             </div>
           </div>
-          <div className="rounded-full bg-primary/10 px-3 py-1">
-            <span className="font-mono text-xs font-semibold text-primary">
-              v1.0
-            </span>
+          <div className="flex items-center gap-2">
+            {showClerkChrome ? (
+              <>
+                <div className="rounded-full bg-primary/10 px-3 py-1">
+                  <span className="font-mono text-xs font-semibold text-primary">
+                    v1.0
+                  </span>
+                </div>
+                <UserButton
+                  afterSignOutUrl="/sign-in"
+                  appearance={{
+                    elements: {
+                      avatarBox: "h-9 w-9 rounded-lg ring-1 ring-primary/30",
+                    },
+                  }}
+                />
+              </>
+            ) : (
+              <div className="rounded-full bg-primary/10 px-3 py-1">
+                <span className="font-mono text-xs font-semibold text-primary">
+                  v1.0
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </header>

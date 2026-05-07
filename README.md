@@ -45,6 +45,18 @@ Useful checks before a PR or deploy:
 | `pnpm build` | Production build (TypeScript errors fail the build) |
 | `pnpm verify` or `npm run verify` | lint + typecheck + build (no nested pnpm/npm) |
 
+### Authentication (Clerk)
+
+1. Create an application in the [Clerk Dashboard](https://dashboard.clerk.com/) and copy keys into **`.env.local`** (see root **`.env.example`**).
+2. When both `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` are real `pk_` / `sk_` values, **middleware** protects `/` and **`/sign-in` / `/sign-up`** host the Clerk `<SignIn />` / `<SignUp />` components.
+3. If keys are missing or contain `PLACEHOLDER`, the HUD still runs for local/CI builds; enable Clerk by adding real keys.
+
+### Workspace API + database (FastAPI + Postgres)
+
+- **DDL:** `database/workspace_ddl.sql` — partitioned workspace tables; **`gaia_source_id` is `BIGINT`** in Postgres and must be **quoted as a base-10 string in JSON** for JavaScript safety (`backend/app/utils/gaia.py`).
+- **Apply DDL locally:** `pwsh ./scripts/apply-workspace-ddl.ps1` (starts **Docker** Postgres 16 on port **5433** if `docker` is on PATH; otherwise use `psql` with `DATABASE_URL`).
+- **API sketch:** `backend/` — activate `backend/.venv`, `uvicorn app.main:app --reload --port 8787` (see **`backend/README.md`** and **`backend/.env.example`** for Clerk JWKS + issuer).
+
 🛰️ Project Components
 1. ExoQuest (The Pipeline)
 A professional-grade scientific engine that pulls live data from the Gaia DR3 and TESS/MAST archives. It handles the "heavy lifting":
