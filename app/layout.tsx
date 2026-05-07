@@ -16,23 +16,9 @@ export const metadata: Metadata = {
   title: 'XQuest | Citizen Space Exploration',
   description: 'Scout the cosmos. Discover Earth 2.0 candidates. Join the global mission to find habitable exoplanets using real Gaia DR3 data.',
   keywords: ['astronomy', 'exoplanets', 'citizen science', 'Gaia', 'space exploration', 'Earth 2.0'],
-  generator: 'v0.app',
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    apple: '/icon.svg',
   },
 }
 

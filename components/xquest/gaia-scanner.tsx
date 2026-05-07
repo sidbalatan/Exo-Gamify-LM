@@ -52,8 +52,7 @@ export function GaiaScanner() {
     // Simulate scanning process
     for (let i = 0; i < scanStages.length; i++) {
       setCurrentStage(i)
-      const stageProgress = ((i + 1) / scanStages.length) * 100
-      
+
       // Animate progress within each stage
       const stageDuration = totalDuration / scanStages.length
       const steps = 20
@@ -71,7 +70,7 @@ export function GaiaScanner() {
     }
 
     // Generate mock results
-    const mockResults: ScanResult[] = Array.from({ length: numCoords }, (_, i) => ({
+    const mockResults: ScanResult[] = Array.from({ length: numCoords }, () => ({
       gaiaId: `Gaia DR3 ${Math.floor(Math.random() * 9999999999)}`,
       constellation: ["Cygnus", "Lyra", "Kepler Field", "Orion", "Scorpius"][Math.floor(Math.random() * 5)],
       magnitude: 8 + Math.random() * 6,

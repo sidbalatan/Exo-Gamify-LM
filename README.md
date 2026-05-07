@@ -1,6 +1,50 @@
 🌌 ExoQuest / XQuest 🚀
 "The stars are our lifeboat. The community is our crew."
 Welcome to the ExoQuest & XQuest Ecosystem. This project is a first-of-its-kind "Human-in-the-Loop" (HITL) machine learning pipeline designed to find Earth 2.0 candidates around K-Dwarf stars. While Earth faces existential threats, we are using live NASA/ESA data to hunt for our next home.
+
+## This repository
+
+The code in this git tree is the **XQuest web app** (Next.js + Tailwind + Radix / shadcn-style UI). It was bootstrapped from [v0](https://v0.app) and is the layer you iterate on in Cursor. Backend services, the ExoQuest pipeline, and databases described in the vision may live in other repositories or future work—not everything below exists in this folder yet.
+
+### Local development
+
+Requirements: **Node.js 20.9+**. Dependencies are locked with **pnpm**; you can still run scripts with **`npm run …`** if you installed via npm.
+
+**If `corepack` / `pnpm` are not found**, you do not have full **Node.js** on your PATH (Cursor’s bundled `node` alone does not ship `corepack`). Install [Node.js LTS](https://nodejs.org), then **open a new terminal** so PATH updates.
+
+**One-shot setup on Windows (PowerShell 7+)** — enables Corepack, activates pnpm 9.15.9, and installs dependencies:
+
+```powershell
+cd path\to\Exo-Gamify-LM
+pwsh ./scripts/setup-dev.ps1
+```
+
+If `winget install …` fails, times out, or never leaves “Waiting for another install…”, use the **Windows `.msi` installer** from [nodejs.org](https://nodejs.org) instead (choose LTS, enable “Add to PATH”), then rerun `setup-dev.ps1`.
+
+After Node is installed, you can instead run manually:
+
+```powershell
+corepack enable
+corepack prepare pnpm@9.15.9 --activate
+```
+
+Or: `npm install -g pnpm` (requires `npm` on your PATH).
+
+```bash
+pnpm install   # or: npm install
+pnpm dev       # or: npm run dev
+```
+
+Useful checks before a PR or deploy:
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm lint` | ESLint (flat config, Next.js core-web-vitals + TypeScript) |
+| `pnpm lint:fix` | ESLint with auto-fix |
+| `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm build` | Production build (TypeScript errors fail the build) |
+| `pnpm verify` or `npm run verify` | lint + typecheck + build (no nested pnpm/npm) |
+
 🛰️ Project Components
 1. ExoQuest (The Pipeline)
 A professional-grade scientific engine that pulls live data from the Gaia DR3 and TESS/MAST archives. It handles the "heavy lifting":
@@ -21,7 +65,7 @@ Human Intuition: XQuest players provide the labels.
 Scaling: These labels are batched to retrain our MLM, making the automated search smarter with every swipe.
 🛠️ Technology Stack
 Backend: FastAPI (Python) + SQLAlchemy (PostgreSQL).
-Frontend: Next.js (React) + Tailwind CSS + Framer Motion.
+Frontend (this repo): Next.js (React) + Tailwind CSS + Radix UI.
 Science: Astroquery (Gaia), Lightkurve (TESS), Wotan (Detrending), TransitLeastSquares (Search).
 Deployment: Docker-containerized, deployed via Azure (Backend) and Vercel (Frontend).
 🗺️ The 8-Module Discovery Roadmap
