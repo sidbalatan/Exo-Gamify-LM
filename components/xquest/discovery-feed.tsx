@@ -19,7 +19,7 @@ const actions = [
   { template: (u: string) => `${u} achieved 95% accuracy in Transit Toss`, isHighlight: true },
   { template: (u: string, s: string) => `${u} validated a transit signal in ${s}`, isHighlight: false },
   { template: (u: string) => `${u} completed Module 3: Habitability`, isHighlight: false },
-  { template: (u: string, s: string, l: number) => `${u} discovered Level ${l} candidate â€” pending review`, isHighlight: true },
+  { template: (u: string, s: string, l: number) => `${u} discovered Level ${l} candidate GÇö pending review`, isHighlight: true },
 ]
 
 function generateDiscovery() {

@@ -1,45 +1,103 @@
-üåå ExoQuest / XQuest üöÄ
+=ÉÓÓ ExoQuest =É‹«
 "The stars are our lifeboat. The community is our crew."
-Welcome to the ExoQuest & XQuest Ecosystem. This project is a first-of-its-kind "Human-in-the-Loop" (HITL) machine learning pipeline designed to find Earth 2.0 candidates around K-Dwarf stars. While Earth faces existential threats, we are using live NASA/ESA data to hunt for our next home.
-üõ∞Ô∏è Project Components
+Welcome to the ExoQuest Ecosystem. This project is a first-of-its-kind "Human-in-the-Loop" (HITL) machine learning pipeline designed to find Earth 2.0 candidates around K-Dwarf stars. While Earth faces existential threats, we are using live NASA/ESA data to hunt for our next home.
+
+## This repository
+
+The code in this git tree is the **ExoQuest web app** (Next.js + Tailwind + Radix / shadcn-style UI). It was bootstrapped from [v0](https://v0.app) and is the layer you iterate on in Cursor. Backend services, the ExoQuest pipeline, and databases described in the vision may live in other repositories or future workG«ˆnot everything below exists in this folder yet.
+
+### Local development
+
+Requirements: **Node.js 20.9+**. Dependencies are locked with **pnpm**; you can still run scripts with **`npm run G«™`** if you installed via npm.
+
+**If `corepack` / `pnpm` are not found**, you do not have full **Node.js** on your PATH (CursorG«÷s bundled `node` alone does not ship `corepack`). Install [Node.js LTS](https://nodejs.org), then **open a new terminal** so PATH updates.
+
+**One-shot setup on Windows (PowerShell 7+)** G«ˆ enables Corepack, activates pnpm 9.15.9, and installs dependencies:
+
+```powershell
+cd path\to\Exo-Gamify-LM
+pwsh ./scripts/setup-dev.ps1
+```
+
+If `winget install G«™` fails, times out, or never leaves G«£Waiting for another installG«™G«•, use the **Windows `.msi` installer** from [nodejs.org](https://nodejs.org) instead (choose LTS, enable G«£Add to PATHG«•), then rerun `setup-dev.ps1`.
+
+After Node is installed, you can instead run manually:
+
+```powershell
+corepack enable
+corepack prepare pnpm@9.15.9 --activate
+```
+
+Or: `npm install -g pnpm` (requires `npm` on your PATH).
+
+```bash
+pnpm install   # or: npm install
+pnpm dev       # or: npm run dev
+```
+
+Useful checks before a PR or deploy:
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm lint` | ESLint (flat config, Next.js core-web-vitals + TypeScript) |
+| `pnpm lint:fix` | ESLint with auto-fix |
+| `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm build` | Production build (TypeScript errors fail the build) |
+| `pnpm verify` or `npm run verify` | lint + typecheck + build (no nested pnpm/npm) |
+
+### Authentication (Clerk)
+
+1. Create an application in the [Clerk Dashboard](https://dashboard.clerk.com/) and copy keys into **`.env.local`** (see root **`.env.example`**).
+2. When both `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` are real `pk_` / `sk_` values, **middleware** protects `/` plus **`/workspace`**, **`/sign-in` / `/sign-up`** remain public, and the Clerk shells live at those routes.
+
+3. If keys are missing or contain `PLACEHOLDER`, the HUD still runs for local/CI builds; enable Clerk by adding real keys.
+4. **`/workspace`** loads your roster through the **`/api/workspace/*` proxy**. Run FastAPI on port **8787** with Clerk JWKS/env + `DATABASE_URL`, and hit `database/workspace_ddl.sql` locally (Docker script covers this).
+
+### Workspace API + database (FastAPI + Postgres)
+
+- **DDL:** `database/workspace_ddl.sql` G«ˆ partitioned workspace tables; **`gaia_source_id` is `BIGINT`** in Postgres and must be **quoted as a base-10 string in JSON** for JavaScript safety (`backend/app/utils/gaia.py`).
+- **Apply DDL locally:** `pwsh ./scripts/apply-workspace-ddl.ps1` (starts **Docker** Postgres 16 on port **5433** if `docker` is on PATH; otherwise use `psql` with `DATABASE_URL`).
+- **API sketch:** `backend/` G«ˆ activate `backend/.venv`, `uvicorn app.main:app --reload --port 8787` (see **`backend/README.md`** and **`backend/.env.example`** for Clerk JWKS + issuer).
+
+=É¢¶n+≈ Project Components
 1. ExoQuest (The Pipeline)
 A professional-grade scientific engine that pulls live data from the Gaia DR3 and TESS/MAST archives. It handles the "heavy lifting":
 The Scout: Automated target acquisition of K-Dwarf stars.
 The Pulse: Data cleaning and detrending using the Wotan algorithm.
 QuestX: A high-performance transit search using TransitLeastSquares.
-2. XQuest (The Game)
+2. ExoQuest HUD (The Game)
 A mobile-first, gamified discovery HUD. It turns complex light-curve analysis into an addictive experience:
 Transit Toss: A "Swipe-to-Label" interface where your intuition trains the Master Learning Model (MLM).
 Mission HUD: A narrative-driven interface that tracks your progress through 8 discovery modules.
 Leaderboard: Compete with "Galactic Architects" globally to secure the most habitable candidates.
 3. ExoReg (The Registry)
-The "Library of Record." A searchable, relational database that archives every star processed by the pipeline‚Äîwhether it's a "Confirmed Candidate" or a "Validated Null."
-üß† The MLM (Master Learning Model) Logic
-XQuest isn't just a game; it's a Data Factory.
+The "Library of Record." A searchable, relational database that archives every star processed by the pipelineG«ˆwhether it's a "Confirmed Candidate" or a "Validated Null."
+=É∫· The MLM (Master Learning Model) Logic
+ExoQuest isn't just a game; it's a Data Factory.
 Active Learning: The ExoQuest pipeline identifies signals that are "ambiguous" to algorithms.
-Human Intuition: XQuest players provide the labels.
+Human Intuition: ExoQuest players provide the labels.
 Scaling: These labels are batched to retrain our MLM, making the automated search smarter with every swipe.
-üõ†Ô∏è Technology Stack
+=É¢·n+≈ Technology Stack
 Backend: FastAPI (Python) + SQLAlchemy (PostgreSQL).
-Frontend: Next.js (React) + Tailwind CSS + Framer Motion.
+Frontend (this repo): Next.js (React) + Tailwind CSS + Radix UI.
 Science: Astroquery (Gaia), Lightkurve (TESS), Wotan (Detrending), TransitLeastSquares (Search).
 Deployment: Docker-containerized, deployed via Azure (Backend) and Vercel (Frontend).
-üó∫Ô∏è The 8-Module Discovery Roadmap
+=É˘¶n+≈ The 8-Module Discovery Roadmap
 ExoReg Initialized: The database backbone.
 The Scout: Live Gaia target fetching.
 The Pulse: Signal conditioning.
 QuestX: Deep transit search.
-XQuest HUD: Mobile-first narrative UI.
+ExoQuest HUD: Mobile-first narrative UI.
 The Transit Toss: Gamified MLM labeling.
 The Leaderboard: Global ranking system.
 The Discovery Feed: Real-time WebSocket alerts.
-üö• Live Data "Timer Monitor"
+=É‹— Live Data "Timer Monitor"
 Because we deal with live satellite data, latency can occur.
-Educational Wait: During downloads, XQuest provides an "Educational Wait Icon" featuring stellar facts.
+Educational Wait: During downloads, ExoQuest provides an "Educational Wait Icon" featuring stellar facts.
 Traffic Alert: If data fetching exceeds 7 seconds, the "Timer Monitor" triggers a notification, allowing users to stay on mission or return later.
-ü§ù Contributing
-As a project built on Citizen Science, we welcome contributors from all backgrounds‚Äîastronomers, developers, and vibe-checkers.
+=ÉÒ• Contributing
+As a community-driven project, we welcome contributors from all backgroundsG«ˆastronomers, developers, and vibe-checkers.
 Fork the repo.
-Follow the Vibe Coder‚Äôs Daily Checklist in the documentation.
+Follow the Vibe CoderG«÷s Daily Checklist in the documentation.
 Submit a Pull Request to join the crew.
 "Because Earth needs a backup plan." a Vibe Coder, Powered by the Universe.

@@ -100,9 +100,9 @@ export default function XQuestPage() {
             <h2 className="text-lg font-bold text-foreground">Global Rankings</h2>
             <div className="space-y-2">
               {[
-                { rank: 1, user: "Stellar-42", score: 15847, badge: "ðŸ†" },
-                { rank: 2, user: "Nova-23", score: 12453, badge: "ðŸ¥ˆ" },
-                { rank: 3, user: "Cosmos-7", score: 11290, badge: "ðŸ¥‰" },
+                { rank: 1, user: "Stellar-42", score: 15847, badge: "=ƒÅå" },
+                { rank: 2, user: "Nova-23", score: 12453, badge: "=ƒÑê" },
+                { rank: 3, user: "Cosmos-7", score: 11290, badge: "=ƒÑë" },
                 { rank: 4, user: "Quasar-1", score: 9876, badge: "" },
                 { rank: 5, user: "Pulsar-3", score: 8754, badge: "" },
               ].map((entry) => (

@@ -43,7 +43,7 @@ export function TransitToss() {
       correct: prev.correct + (wasCorrect ? 1 : 0),
       total: prev.total + 1
     }))
-    setFeedback(wasCorrect ? "Correct! ðŸŽ¯" : "Not quite! ðŸ“Š")
+    setFeedback(wasCorrect ? "Correct! =ƒÄ»" : "Not quite! =ƒôè")
     
     setTimeout(() => {
       setFeedback(null)
@@ -94,7 +94,7 @@ export function TransitToss() {
             FLUX
           </div>
           <div className="absolute bottom-2 right-2 text-[10px] font-mono text-muted-foreground">
-            TIME â†’
+            TIME GåÆ
           </div>
           <svg 
             key={currentCurve.id}
@@ -163,7 +163,7 @@ export function TransitToss() {
         </div>
         
         <p className="text-center text-xs text-muted-foreground">
-          Swipe to classify â€¢ Help train our exoplanet detection AI
+          Swipe to classify GÇó Help train our exoplanet detection AI
         </p>
       </CardContent>
     </Card>
