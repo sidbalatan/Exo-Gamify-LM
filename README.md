@@ -48,8 +48,10 @@ Useful checks before a PR or deploy:
 ### Authentication (Clerk)
 
 1. Create an application in the [Clerk Dashboard](https://dashboard.clerk.com/) and copy keys into **`.env.local`** (see root **`.env.example`**).
-2. When both `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` are real `pk_` / `sk_` values, **middleware** protects `/` and **`/sign-in` / `/sign-up`** host the Clerk `<SignIn />` / `<SignUp />` components.
+2. When both `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` are real `pk_` / `sk_` values, **middleware** protects `/` plus **`/workspace`**, **`/sign-in` / `/sign-up`** remain public, and the Clerk shells live at those routes.
+
 3. If keys are missing or contain `PLACEHOLDER`, the HUD still runs for local/CI builds; enable Clerk by adding real keys.
+4. **`/workspace`** loads your roster through the **`/api/workspace/*` proxy**. Run FastAPI on port **8787** with Clerk JWKS/env + `DATABASE_URL`, and hit `database/workspace_ddl.sql` locally (Docker script covers this).
 
 ### Workspace API + database (FastAPI + Postgres)
 

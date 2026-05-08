@@ -13,3 +13,9 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8787
 ```
 
 Open interactive docs at http://localhost:8787/docs
+
+### Personal workspace persistence
+
+Once `DATABASE_URL` points at a Postgres that has consumed `database/workspace_ddl.sql`, `GET /v1/workspace/me` upserts into `profiles` (Clerk JWT email/name hydrated when present), and `/v1/workspace/targets` persists partitioned rows per clerk `sub`.
+
+The Next.js app proxies authenticated calls via `/api/workspace/*` (`WORKSPACE_API_URL`/`NEXT_PUBLIC_API_URL`) using the Clerk session JWT as `Authorization: Bearer …`.

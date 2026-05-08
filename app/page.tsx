@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Rocket } from "lucide-react"
 import { UserButton } from "@clerk/nextjs"
 import { clerkPublishableKeyOrNull } from "@/lib/clerk-config"
@@ -47,6 +48,12 @@ export default function XQuestPage() {
           <div className="flex items-center gap-2">
             {showClerkChrome ? (
               <>
+                <Link
+                  href="/workspace"
+                  className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/10"
+                >
+                  Workspace
+                </Link>
                 <div className="rounded-full bg-primary/10 px-3 py-1">
                   <span className="font-mono text-xs font-semibold text-primary">
                     v1.0

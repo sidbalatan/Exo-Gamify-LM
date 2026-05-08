@@ -1,17 +1,79 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.deps.auth import get_clerk_user_id
+from app import db as db_conn
+from app.config import settings
+from app.deps.auth import AuthContext, get_auth_context, get_clerk_user_id
 from app.schemas.workspace import (
     AssetPresignRequest,
     AssetPresignResponse,
     ExoplanetCreate,
     KDwarfUpsert,
+    ProfileOut,
     TargetCreate,
+    TargetKind,
+    TargetOut,
+    TargetsPayload,
+    WorkspaceMeOut,
 )
+from app.utils.gaia import gaia_api_string_to_bigint, gaia_bigint_to_api_string
 
 router = APIRouter(prefix="/v1/workspace", tags=["workspace"])
+
+
+def _require_db_pool():
+    if not settings.database_url:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="DATABASE_URL is not configured on the API server",
+        )
+    try:
+        return db_conn.require_pool()
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e),
+        ) from e
+
+
+@router.get("/me", response_model=WorkspaceMeOut)
+async def workspace_me(
+    auth: Annotated[AuthContext, Depends(get_auth_context)],
+) -> WorkspaceMeOut:
+    pool = _require_db_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            """
+            INSERT INTO profiles (user_id, email, display_name)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (user_id) DO UPDATE SET
+              email = COALESCE(EXCLUDED.email, profiles.email),
+              display_name = COALESCE(EXCLUDED.display_name, profiles.display_name),
+              updated_at = now()
+            RETURNING user_id, email, display_name, created_at;
+            """,
+            auth.user_id,
+            auth.email,
+            auth.name,
+        )
+        cnt = await conn.fetchval(
+            """
+            SELECT COUNT(*)::bigint FROM workspace_targets WHERE user_id = $1;
+            """,
+            auth.user_id,
+        )
+
+    if row is None:
+        raise HTTPException(status_code=500, detail="profile upsert failed")
+
+    profile = ProfileOut(
+        user_id=str(row["user_id"]),
+        email=row["email"],
+        display_name=row["display_name"],
+        created_at=row["created_at"],
+    )
+    return WorkspaceMeOut(profile=profile, target_count=int(cnt))
 
 
 @router.get("/health")
@@ -24,41 +86,69 @@ async def workspace_health(
 # --- 1) Gaia IDs / coordinates ---
 
 
-@router.get("/targets")
+@router.get("/targets", response_model=TargetsPayload)
 async def list_targets(
     user_id: Annotated[str, Depends(get_clerk_user_id)],
-) -> dict:
-    """
-    SQL sketch:
-      SELECT id, kind::text, gaia_source_id, ra_deg, dec_deg, label, created_at
-      FROM workspace_targets
-      WHERE user_id = $1
-      ORDER BY created_at DESC
-      LIMIT $2 OFFSET $3;
-    Serialize gaia_source_id with text-hint: convert BIGINT -> str in Python.
-    """
-    return {"items": [], "user_id": user_id}
+) -> TargetsPayload:
+    pool = _require_db_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT id, kind::text AS kind, gaia_source_id, ra_deg, dec_deg, label, created_at
+            FROM workspace_targets
+            WHERE user_id = $1
+            ORDER BY created_at DESC
+            LIMIT 200;
+            """,
+            user_id,
+        )
+
+    return TargetsPayload(
+        items=[TargetOut.from_row(user_id=user_id, row=r) for r in rows],
+    )
 
 
-@router.post("/targets", status_code=status.HTTP_201_CREATED)
+@router.post("/targets", status_code=status.HTTP_201_CREATED, response_model=TargetOut)
 async def create_target(
     body: TargetCreate,
     user_id: Annotated[str, Depends(get_clerk_user_id)],
-) -> dict:
-    """
-    SQL sketch:
-      INSERT INTO workspace_targets (
-        user_id, kind, gaia_source_id, ra_deg, dec_deg, label, notes
-      ) VALUES ($1, $2::workspace_target_kind, $3, $4, $5, $6, $7)
-      RETURNING id, created_at;
-    Bind gaia_source_id from gaia_api_string_to_bigint(...) when present.
-    """
-    return {
-        "created": True,
-        "user_id": user_id,
-        "payload": body.model_dump(),
-        "sql_table": "workspace_targets",
-    }
+) -> TargetOut:
+    pool = _require_db_pool()
+    gaia_bi: int | None = None
+    if body.kind is TargetKind.GAIA_DR3_SOURCE_ID:
+        assert body.gaia_source_id is not None
+        gaia_bi = gaia_api_string_to_bigint(body.gaia_source_id)
+
+    async with pool.acquire() as conn:
+        await conn.execute(
+            """
+            INSERT INTO profiles (user_id, email, display_name)
+            VALUES ($1, NULL, NULL)
+            ON CONFLICT (user_id) DO NOTHING;
+            """,
+            user_id,
+        )
+        row = await conn.fetchrow(
+            """
+            INSERT INTO workspace_targets (
+              user_id, kind, gaia_source_id, ra_deg, dec_deg, label, notes
+            )
+            VALUES ($1, $2::workspace_target_kind, $3, $4, $5, $6, $7)
+            RETURNING id, kind::text AS kind, gaia_source_id, ra_deg, dec_deg, label, created_at;
+            """,
+            user_id,
+            body.kind.value,
+            gaia_bi,
+            body.ra_deg,
+            body.dec_deg,
+            body.label,
+            body.notes,
+        )
+
+    if row is None:
+        raise HTTPException(status_code=500, detail="target insert failed")
+
+    return TargetOut.from_row(user_id=user_id, row=row)
 
 
 # --- 2) Validated K dwarfs ---
@@ -95,14 +185,12 @@ async def upsert_k_dwarf(
         updated_at = now()
       RETURNING *;
     """
-    from app.utils.gaia import gaia_api_string_to_bigint, gaia_bigint_to_api_string
-
     n = gaia_api_string_to_bigint(body.gaia_source_id)
     return {
         "upserted": True,
         "user_id": user_id,
         "gaia_api_roundtrip": gaia_bigint_to_api_string(n),
-        "payload": body.model_dump(),
+        "payload": body.model_dump(mode="json"),
     }
 
 
@@ -127,7 +215,7 @@ async def create_exoplanet(
       ) RETURNING id;
     """
     _ = body.host_gaia_bigint()
-    return {"created": True, "user_id": user_id, "payload": body.model_dump()}
+    return {"created": True, "user_id": user_id, "payload": body.model_dump(mode="json")}
 
 
 # --- 4) Assets (presigned flow sketch) ---

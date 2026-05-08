@@ -1,10 +1,12 @@
 """Pydantic models — gaia_source_id is always serialized as STRING at API boundaries."""
 
+from collections.abc import Mapping
 from datetime import datetime
+from enum import StrEnum
 from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.utils.gaia import gaia_api_string_to_bigint, gaia_bigint_to_api_string
 
@@ -19,13 +21,32 @@ GaiaSourceIdApi = Annotated[
 ]
 
 
+class TargetKind(StrEnum):
+    GAIA_DR3_SOURCE_ID = "GAIA_DR3_SOURCE_ID"
+    SKY_COORDS = "SKY_COORDS"
+    ALIAS_TEXT = "ALIAS_TEXT"
+
+
 class TargetCreate(BaseModel):
-    kind: str
+    kind: TargetKind
     gaia_source_id: str | None = None
     ra_deg: float | None = None
     dec_deg: float | None = None
     label: str | None = None
     notes: str | None = None
+
+    @model_validator(mode="after")
+    def require_kind_payload(self) -> "TargetCreate":
+        if self.kind is TargetKind.GAIA_DR3_SOURCE_ID:
+            if not (self.gaia_source_id and self.gaia_source_id.strip()):
+                raise ValueError("gaia_source_id is required for GAIA_DR3_SOURCE_ID")
+        elif self.kind is TargetKind.SKY_COORDS:
+            if self.ra_deg is None or self.dec_deg is None:
+                raise ValueError("ra_deg and dec_deg are required for SKY_COORDS")
+        elif self.kind is TargetKind.ALIAS_TEXT:
+            if not (self.label and self.label.strip()):
+                raise ValueError("label is required for ALIAS_TEXT")
+        return self
 
 
 class TargetOut(BaseModel):
@@ -41,18 +62,38 @@ class TargetOut(BaseModel):
     created_at: datetime
 
     @classmethod
-    def from_row(cls, *, user_id: str, row: dict) -> "TargetOut":
+    def from_row(cls, *, user_id: str, row: Mapping[str, object]) -> "TargetOut":
         g = row.get("gaia_source_id")
         return cls(
             user_id=user_id,
-            id=row["id"],
-            kind=row["kind"],
-            gaia_source_id=gaia_bigint_to_api_string(g) if g is not None else None,
-            ra_deg=row.get("ra_deg"),
-            dec_deg=row.get("dec_deg"),
-            label=row.get("label"),
-            created_at=row["created_at"],
+            id=row["id"],  # type: ignore[assignment]
+            kind=str(row["kind"]),
+            gaia_source_id=gaia_bigint_to_api_string(int(g))
+            if g is not None
+            else None,
+            ra_deg=row.get("ra_deg"),  # type: ignore[arg-type]
+            dec_deg=row.get("dec_deg"),  # type: ignore[arg-type]
+            label=row.get("label"),  # type: ignore[arg-type]
+            created_at=row["created_at"],  # type: ignore[assignment]
         )
+
+
+class ProfileOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    user_id: str
+    email: str | None
+    display_name: str | None
+    created_at: datetime
+
+
+class WorkspaceMeOut(BaseModel):
+    profile: ProfileOut
+    target_count: int
+
+
+class TargetsPayload(BaseModel):
+    items: list[TargetOut]
 
 
 class KDwarfUpsert(BaseModel):
