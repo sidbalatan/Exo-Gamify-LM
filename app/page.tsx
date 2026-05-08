@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Rocket } from "lucide-react"
-import { UserButton } from "@clerk/nextjs"
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
 import { clerkPublishableKeyOrNull } from "@/lib/clerk-config"
 import { MissionHUD } from "@/components/xquest/mission-hud"
 import { GaiaScanner } from "@/components/xquest/gaia-scanner"
@@ -22,7 +22,7 @@ const tabProgress: Record<string, number> = {
 
 export default function XQuestPage() {
   const [activeTab, setActiveTab] = useState("scout")
-  const showClerkChrome = clerkPublishableKeyOrNull() !== null
+  const clerkEnabled = clerkPublishableKeyOrNull() !== null
 
   return (
     <main className="min-h-screen bg-background pb-24">
@@ -46,34 +46,37 @@ export default function XQuestPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {showClerkChrome ? (
+            <div className="rounded-full bg-primary/10 px-3 py-1">
+              <span className="font-mono text-xs font-semibold text-primary">
+                v1.0
+              </span>
+            </div>
+            {clerkEnabled && (
               <>
-                <Link
-                  href="/workspace"
-                  className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/10"
-                >
-                  Workspace
-                </Link>
-                <div className="rounded-full bg-primary/10 px-3 py-1">
-                  <span className="font-mono text-xs font-semibold text-primary">
-                    v1.0
-                  </span>
-                </div>
-                <UserButton
-                  afterSignOutUrl="/sign-in"
-                  appearance={{
-                    elements: {
-                      avatarBox: "h-9 w-9 rounded-lg ring-1 ring-primary/30",
-                    },
-                  }}
-                />
+                <SignedIn>
+                  <Link
+                    href="/workspace"
+                    className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/10"
+                  >
+                    Workspace
+                  </Link>
+                  <UserButton
+                    afterSignOutUrl="/sign-in"
+                    appearance={{
+                      elements: {
+                        avatarBox: "h-9 w-9 rounded-lg ring-1 ring-primary/30",
+                      },
+                    }}
+                  />
+                </SignedIn>
+                <SignedOut>
+                  <SignInButton mode="redirect">
+                    <button className="rounded-lg border border-primary/40 px-3 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/10">
+                      Sign in
+                    </button>
+                  </SignInButton>
+                </SignedOut>
               </>
-            ) : (
-              <div className="rounded-full bg-primary/10 px-3 py-1">
-                <span className="font-mono text-xs font-semibold text-primary">
-                  v1.0
-                </span>
-              </div>
             )}
           </div>
         </div>

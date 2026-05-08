@@ -17,7 +17,7 @@ const clerk = clerkMiddleware(async (auth, req) => {
   }
 })
 
-export default function middleware(
+export default function proxy(
   request: NextRequest,
   event: NextFetchEvent,
 ) {

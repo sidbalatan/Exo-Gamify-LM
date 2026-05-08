@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { ClerkProvider } from '@clerk/nextjs'
 import './globals.css'
-import { Providers } from '@/components/providers'
+import { clerkPublishableKeyOrNull } from '@/lib/clerk-config'
 
 const geist = Geist({ 
   subsets: ["latin"],
@@ -36,13 +37,23 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const key = clerkPublishableKeyOrNull()
+
+  const inner = (
+    <>
+      {children}
+      {process.env.NODE_ENV === 'production' && <Analytics />}
+    </>
+  )
+
   return (
     <html lang="en" className="bg-[#0B0E14]">
       <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased`}>
-        <Providers>
-          {children}
-          {process.env.NODE_ENV === 'production' && <Analytics />}
-        </Providers>
+        {key ? (
+          <ClerkProvider publishableKey={key}>
+            {inner}
+          </ClerkProvider>
+        ) : inner}
       </body>
     </html>
   )

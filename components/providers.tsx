@@ -1,12 +1,8 @@
 "use client"
 
-import { ClerkProvider } from "@clerk/nextjs"
-
-import { clerkPublishableKeyOrNull } from "@/lib/clerk-config"
-
+// ClerkProvider now lives in app/layout.tsx (server component).
+// This file is kept as a passthrough for any future client-only providers
+// (e.g. ThemeProvider, ReactQueryProvider, Sonner <Toaster />).
 export function Providers({ children }: { children: React.ReactNode }) {
-  const key = clerkPublishableKeyOrNull()
-  if (!key) return <>{children}</>
-
-  return <ClerkProvider publishableKey={key}>{children}</ClerkProvider>
+  return <>{children}</>
 }
