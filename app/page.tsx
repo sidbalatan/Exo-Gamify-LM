@@ -17,7 +17,7 @@ const tabProgress: Record<string, number> = {
   exoreg: 85,
 }
 
-export default function XQuestPage() {
+export default function ExoQuestPage() {
   const [activeTab, setActiveTab] = useState("scout")
 
   return (
@@ -34,10 +34,10 @@ export default function XQuestPage() {
             </div>
             <div>
               <h1 className="text-lg font-bold tracking-tight text-foreground">
-                XQuest
+                ExoQuest
               </h1>
               <p className="text-[10px] text-muted-foreground">
-                Citizen Space Exploration
+                Community Quests For ExoPlanets
               </p>
             </div>
           </div>

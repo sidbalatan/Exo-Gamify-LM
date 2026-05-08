@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight, Gamepad2, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,16 +28,30 @@ function generateLightCurve(hasTransit: boolean) {
   return data
 }
 
+function freshCurve() {
+  const hasTransit = Math.random() > 0.5
+  return {
+    data: generateLightCurve(hasTransit),
+    hasTransit,
+    id: Date.now(),
+  }
+}
+
 export function TransitToss() {
-  const [currentCurve, setCurrentCurve] = useState(() => ({
-    data: generateLightCurve(Math.random() > 0.5),
-    hasTransit: Math.random() > 0.5,
-    id: Date.now()
-  }))
+  const [currentCurve, setCurrentCurve] = useState<{
+    data: { x: number; y: number }[]
+    hasTransit: boolean
+    id: number
+  } | null>(null)
   const [score, setScore] = useState({ correct: 0, total: 0 })
   const [feedback, setFeedback] = useState<string | null>(null)
 
+  useEffect(() => {
+    queueMicrotask(() => setCurrentCurve(freshCurve()))
+  }, [])
+
   const handleVet = (isTransit: boolean) => {
+    if (!currentCurve) return
     const wasCorrect = isTransit === currentCurve.hasTransit
     setScore(prev => ({
       correct: prev.correct + (wasCorrect ? 1 : 0),
@@ -47,12 +61,7 @@ export function TransitToss() {
     
     setTimeout(() => {
       setFeedback(null)
-      const hasTransit = Math.random() > 0.5
-      setCurrentCurve({
-        data: generateLightCurve(hasTransit),
-        hasTransit,
-        id: Date.now()
-      })
+      setCurrentCurve(freshCurve())
     }, 1000)
   }
 
@@ -60,11 +69,11 @@ export function TransitToss() {
   const width = 300
   const height = 100
   const padding = 10
-  const pathData = currentCurve.data.map((point, i) => {
+  const pathData = (currentCurve?.data ?? []).map((point, i) => {
     const x = padding + (point.x / 50) * (width - 2 * padding)
     const y = padding + ((1.02 - point.y) / 0.1) * (height - 2 * padding)
-    return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
-  }).join(' ')
+    return `${i === 0 ? "M" : "L"} ${x} ${y}`
+  }).join(" ")
 
   return (
     <Card className="border-border bg-card/80 backdrop-blur-sm overflow-hidden">
@@ -97,7 +106,7 @@ export function TransitToss() {
             TIME →
           </div>
           <svg 
-            key={currentCurve.id}
+            key={currentCurve?.id ?? 0}
             viewBox={`0 0 ${width} ${height}`} 
             className="w-full h-auto"
             preserveAspectRatio="xMidYMid meet"
@@ -118,7 +127,7 @@ export function TransitToss() {
             />
             
             {/* Data points */}
-            {currentCurve.data.filter((_, i) => i % 3 === 0).map((point, i) => {
+            {(currentCurve?.data ?? []).filter((_, i) => i % 3 === 0).map((point, i) => {
               const x = padding + (point.x / 50) * (width - 2 * padding)
               const y = padding + ((1.02 - point.y) / 0.1) * (height - 2 * padding)
               return (
