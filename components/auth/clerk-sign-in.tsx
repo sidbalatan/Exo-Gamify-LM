@@ -23,8 +23,8 @@ export function ClerkSignIn() {
       routing="path"
       path="/sign-in"
       signUpUrl="/sign-up"
-      forceRedirectUrl="/workspace"
-      fallbackRedirectUrl="/workspace"
+      forceRedirectUrl="/"
+      fallbackRedirectUrl="/"
     />
   )
 }
