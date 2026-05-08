@@ -23,7 +23,7 @@ export function AuthShell({
             </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
-                XQuest
+                ExoQuest
               </p>
               <h1 className="mt-1 text-xl font-bold tracking-tight">{title}</h1>
               {subtitle ? (

@@ -38,10 +38,10 @@ export default function XQuestPage() {
             </div>
             <div>
               <h1 className="text-lg font-bold tracking-tight text-foreground">
-                XQuest
+                ExoQuest
               </h1>
               <p className="text-[10px] text-muted-foreground">
-                Citizen Space Exploration
+                Community Quest for K Dwarfs and Exoplanets
               </p>
             </div>
           </div>

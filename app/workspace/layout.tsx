@@ -4,8 +4,8 @@ import type { ReactNode } from "react"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Workspace | XQuest",
-  description: "Your partitioned personal workspace targets and Gaia scouts.",
+  title: "Workspace | ExoQuest",
+  description: "Your personal ExoQuest workspace — partitioned Gaia targets and K-Dwarf scouts.",
 }
 
 export default function WorkspaceLayout({ children }: { children: ReactNode }) {

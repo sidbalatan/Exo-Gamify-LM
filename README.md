@@ -1,10 +1,10 @@
-🌌 ExoQuest / XQuest 🚀
+🌌 ExoQuest 🚀
 "The stars are our lifeboat. The community is our crew."
-Welcome to the ExoQuest & XQuest Ecosystem. This project is a first-of-its-kind "Human-in-the-Loop" (HITL) machine learning pipeline designed to find Earth 2.0 candidates around K-Dwarf stars. While Earth faces existential threats, we are using live NASA/ESA data to hunt for our next home.
+Welcome to the ExoQuest Ecosystem. This project is a first-of-its-kind "Human-in-the-Loop" (HITL) machine learning pipeline designed to find Earth 2.0 candidates around K-Dwarf stars. While Earth faces existential threats, we are using live NASA/ESA data to hunt for our next home.
 
 ## This repository
 
-The code in this git tree is the **XQuest web app** (Next.js + Tailwind + Radix / shadcn-style UI). It was bootstrapped from [v0](https://v0.app) and is the layer you iterate on in Cursor. Backend services, the ExoQuest pipeline, and databases described in the vision may live in other repositories or future work—not everything below exists in this folder yet.
+The code in this git tree is the **ExoQuest web app** (Next.js + Tailwind + Radix / shadcn-style UI). It was bootstrapped from [v0](https://v0.app) and is the layer you iterate on in Cursor. Backend services, the ExoQuest pipeline, and databases described in the vision may live in other repositories or future work—not everything below exists in this folder yet.
 
 ### Local development
 
@@ -65,7 +65,7 @@ A professional-grade scientific engine that pulls live data from the Gaia DR3 an
 The Scout: Automated target acquisition of K-Dwarf stars.
 The Pulse: Data cleaning and detrending using the Wotan algorithm.
 QuestX: A high-performance transit search using TransitLeastSquares.
-2. XQuest (The Game)
+2. ExoQuest HUD (The Game)
 A mobile-first, gamified discovery HUD. It turns complex light-curve analysis into an addictive experience:
 Transit Toss: A "Swipe-to-Label" interface where your intuition trains the Master Learning Model (MLM).
 Mission HUD: A narrative-driven interface that tracks your progress through 8 discovery modules.
@@ -73,9 +73,9 @@ Leaderboard: Compete with "Galactic Architects" globally to secure the most habi
 3. ExoReg (The Registry)
 The "Library of Record." A searchable, relational database that archives every star processed by the pipeline—whether it's a "Confirmed Candidate" or a "Validated Null."
 🧠 The MLM (Master Learning Model) Logic
-XQuest isn't just a game; it's a Data Factory.
+ExoQuest isn't just a game; it's a Data Factory.
 Active Learning: The ExoQuest pipeline identifies signals that are "ambiguous" to algorithms.
-Human Intuition: XQuest players provide the labels.
+Human Intuition: ExoQuest players provide the labels.
 Scaling: These labels are batched to retrain our MLM, making the automated search smarter with every swipe.
 🛠️ Technology Stack
 Backend: FastAPI (Python) + SQLAlchemy (PostgreSQL).
@@ -87,16 +87,16 @@ ExoReg Initialized: The database backbone.
 The Scout: Live Gaia target fetching.
 The Pulse: Signal conditioning.
 QuestX: Deep transit search.
-XQuest HUD: Mobile-first narrative UI.
+ExoQuest HUD: Mobile-first narrative UI.
 The Transit Toss: Gamified MLM labeling.
 The Leaderboard: Global ranking system.
 The Discovery Feed: Real-time WebSocket alerts.
 🚥 Live Data "Timer Monitor"
 Because we deal with live satellite data, latency can occur.
-Educational Wait: During downloads, XQuest provides an "Educational Wait Icon" featuring stellar facts.
+Educational Wait: During downloads, ExoQuest provides an "Educational Wait Icon" featuring stellar facts.
 Traffic Alert: If data fetching exceeds 7 seconds, the "Timer Monitor" triggers a notification, allowing users to stay on mission or return later.
 🤝 Contributing
-As a project built on Citizen Science, we welcome contributors from all backgrounds—astronomers, developers, and vibe-checkers.
+As a community-driven project, we welcome contributors from all backgrounds—astronomers, developers, and vibe-checkers.
 Fork the repo.
 Follow the Vibe Coder’s Daily Checklist in the documentation.
 Submit a Pull Request to join the crew.

@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'XQuest | Citizen Space Exploration',
-  description: 'Scout the cosmos. Discover Earth 2.0 candidates. Join the global mission to find habitable exoplanets using real Gaia DR3 data.',
-  keywords: ['astronomy', 'exoplanets', 'citizen science', 'Gaia', 'space exploration', 'Earth 2.0'],
+  title: 'ExoQuest | Community Quest for K Dwarfs and Exoplanets',
+  description: 'Join the community quest to discover K-Dwarf stars and exoplanet candidates. Scout the cosmos using real Gaia DR3 data and help find Earth 2.0.',
+  keywords: ['astronomy', 'exoplanets', 'K dwarfs', 'citizen science', 'Gaia DR3', 'space exploration', 'Earth 2.0'],
   icons: {
     icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
     apple: '/icon.svg',

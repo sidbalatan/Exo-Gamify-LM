@@ -1,4 +1,4 @@
-# XQuest FastAPI workspace API
+# ExoQuest FastAPI workspace API
 
 JWTs are validated with **Clerk JWKS**. Use the Bearer token from the Clerk session JWT or configure a Clerk **JWT template** for backend access.
 

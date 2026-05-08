@@ -1,4 +1,4 @@
--- XQuest personal workspace schema (PostgreSQL 15+)
+-- ExoQuest personal workspace schema (PostgreSQL 15+)
 --
 -- Gaia DR3 source_id representation
 -- -------------------------------

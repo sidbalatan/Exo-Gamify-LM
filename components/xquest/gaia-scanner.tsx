@@ -15,7 +15,7 @@ const scanStages = [
   "Establishing Satellite Link...",
   "Filtering K-Dwarf Stars...",
   "Analyzing Transit Signals...",
-  "XQuest Transit Search...",
+  "ExoQuest Transit Search...",
   "Running ML Classification...",
   "Validating Candidates...",
   "Compiling Results...",
