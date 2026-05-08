@@ -53,8 +53,8 @@ async function parseErrorMessage(res: Response): Promise<string> {
   }
 }
 
-export default function WorkspacePage() {
-  const clerkKey = clerkPublishableKeyOrNull()
+// Inner component — only rendered inside ClerkProvider, so useAuth() is safe
+function WorkspaceContent() {
   const { isLoaded } = useAuth()
 
   const [me, setMe] = useState<MeWire | null>(null)
@@ -102,8 +102,7 @@ export default function WorkspacePage() {
       const list = ((await tRes.json()) as TargetsWire).items
       setTargets(list)
     } catch (e) {
-      const msg =
-        e instanceof Error ? e.message : "Could not load workspace."
+      const msg = e instanceof Error ? e.message : "Could not load workspace."
       setMe(null)
       setTargets(null)
       setError(msg)
@@ -113,12 +112,11 @@ export default function WorkspacePage() {
   }, [])
 
   useEffect(() => {
-    if (!clerkKey) return
     if (!isLoaded) return
     queueMicrotask(() => {
       void refresh()
     })
-  }, [clerkKey, isLoaded, refresh])
+  }, [isLoaded, refresh])
 
   const onAddTarget = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -145,36 +143,10 @@ export default function WorkspacePage() {
       setLabelInput("")
       await refresh()
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Could not add target.",
-      )
+      setError(err instanceof Error ? err.message : "Could not add target.")
     } finally {
       setSaving(false)
     }
-  }
-
-  if (!clerkKey) {
-    return (
-      <main className="mx-auto flex min-h-screen max-w-lg flex-col gap-6 bg-background px-4 py-10 text-muted-foreground">
-        <Link href="/" className="text-sm font-medium text-primary hover:text-primary/90">
-          ← Back to HUD
-        </Link>
-        <div className="rounded-2xl border border-border bg-card/40 p-6 text-sm leading-relaxed text-foreground">
-          <p>Workspace needs Clerk to map your Postgres rows to `profiles.user_id`.</p>
-          <p className="mt-3 text-muted-foreground">
-            Configure{" "}
-            <code className="rounded bg-secondary px-1 py-0.5 text-[11px]">
-              NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-            </code>
-            {" + "}
-            <code className="rounded bg-secondary px-1 py-0.5 text-[11px]">
-              CLERK_SECRET_KEY
-            </code>
-            , then revisit this route.
-          </p>
-        </div>
-      </main>
-    )
   }
 
   if (!isLoaded) {
@@ -230,17 +202,11 @@ export default function WorkspacePage() {
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
                   <div>
                     <dt className="text-[11px] text-muted-foreground">Email</dt>
-                    <dd className="text-foreground">
-                      {me.profile.email ?? "—"}
-                    </dd>
+                    <dd className="text-foreground">{me.profile.email ?? "—"}</dd>
                   </div>
                   <div>
-                    <dt className="text-[11px] text-muted-foreground">
-                      Display name
-                    </dt>
-                    <dd className="text-foreground">
-                      {me.profile.display_name ?? "—"}
-                    </dd>
+                    <dt className="text-[11px] text-muted-foreground">Display name</dt>
+                    <dd className="text-foreground">{me.profile.display_name ?? "—"}</dd>
                   </div>
                   <div>
                     <dt className="text-[11px] text-muted-foreground">Targets</dt>
@@ -249,34 +215,25 @@ export default function WorkspacePage() {
                 </div>
                 <p className="text-[11px] text-muted-foreground">
                   Member since{" "}
-                  <span className="text-foreground">
-                    {isoShort(me.profile.created_at)}
-                  </span>
+                  <span className="text-foreground">{isoShort(me.profile.created_at)}</span>
                 </p>
               </dl>
             ) : (
-              <p className="mt-3 text-sm text-muted-foreground">
-                Could not load profile.
-              </p>
+              <p className="mt-3 text-sm text-muted-foreground">Could not load profile.</p>
             )}
           </div>
         </section>
 
         <section aria-label="Add Gaia target">
           <div className="rounded-2xl border border-primary/35 bg-primary/5 p-4">
-            <h2 className="text-sm font-semibold text-foreground">
-              Add Gaia DR3 source
-            </h2>
+            <h2 className="text-sm font-semibold text-foreground">Add Gaia DR3 source</h2>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              Values are persisted as BIGINT in Postgres and returned as
-              decimal strings for JavaScript-safe precision.
+              Values are persisted as BIGINT in Postgres and returned as decimal strings for
+              JavaScript-safe precision.
             </p>
             <form className="mt-4 space-y-3" onSubmit={onAddTarget}>
               <div className="space-y-1">
-                <label
-                  htmlFor="gaia-id"
-                  className="text-[11px] font-medium text-foreground"
-                >
+                <label htmlFor="gaia-id" className="text-[11px] font-medium text-foreground">
                   Gaia source_id (string)
                 </label>
                 <input
@@ -289,10 +246,7 @@ export default function WorkspacePage() {
                 />
               </div>
               <div className="space-y-1">
-                <label
-                  htmlFor="label"
-                  className="text-[11px] font-medium text-foreground"
-                >
+                <label htmlFor="label" className="text-[11px] font-medium text-foreground">
                   Label (optional)
                 </label>
                 <input
@@ -316,13 +270,30 @@ export default function WorkspacePage() {
 
         {error ? (
           <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            <p className="font-semibold">{error.includes("DATABASE_URL") || error.includes("database pool") || error.includes("503") ? "Backend / database offline" : "Request failed"}</p>
+            <p className="font-semibold">
+              {error.includes("DATABASE_URL") ||
+              error.includes("database pool") ||
+              error.includes("503")
+                ? "Backend / database offline"
+                : "Request failed"}
+            </p>
             <p className="mt-2 text-[13px] leading-relaxed">{error}</p>
             {(error.includes("DATABASE_URL") || error.includes("database pool")) && (
               <ul className="mt-3 list-disc space-y-1 pl-4 text-[12px] text-destructive/90">
-                <li>Set <code className="font-mono text-[11px]">DATABASE_URL</code> in <code className="font-mono text-[11px]">backend/.env</code> and restart uvicorn.</li>
-                <li>Apply <code className="font-mono text-[11px]">database/workspace_ddl.sql</code> (Docker script helps).</li>
-                <li>Keep Next.js pointing at FastAPI (<code className="font-mono text-[11px]">WORKSPACE_API_URL</code>).</li>
+                <li>
+                  Set{" "}
+                  <code className="font-mono text-[11px]">DATABASE_URL</code> in{" "}
+                  <code className="font-mono text-[11px]">backend/.env</code> and restart uvicorn.
+                </li>
+                <li>
+                  Apply{" "}
+                  <code className="font-mono text-[11px]">database/workspace_ddl.sql</code>{" "}
+                  (Docker script helps).
+                </li>
+                <li>
+                  Keep Next.js pointing at FastAPI (
+                  <code className="font-mono text-[11px]">WORKSPACE_API_URL</code>).
+                </li>
               </ul>
             )}
           </div>
@@ -345,8 +316,8 @@ export default function WorkspacePage() {
             <p className="mt-3 text-sm text-muted-foreground">Loading targets …</p>
           ) : !targets?.length ? (
             <div className="mt-4 rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
-              No targets yet. Add a Gaia source above — it appears partitioned by
-              your Clerk user id in Postgres.
+              No targets yet. Add a Gaia source above — it appears partitioned by your Clerk user
+              id in Postgres.
             </div>
           ) : (
             <ul className="mt-3 space-y-2">
@@ -372,9 +343,7 @@ export default function WorkspacePage() {
                         {isoShort(t.created_at)}
                       </span>
                     </div>
-                    {t.label ? (
-                      <p className="text-sm text-foreground">{t.label}</p>
-                    ) : null}
+                    {t.label ? <p className="text-sm text-foreground">{t.label}</p> : null}
                   </div>
                 </li>
               ))}
@@ -384,4 +353,34 @@ export default function WorkspacePage() {
       </div>
     </main>
   )
+}
+
+// Outer export — safe to render without ClerkProvider
+export default function WorkspacePage() {
+  const clerkKey = clerkPublishableKeyOrNull()
+
+  if (!clerkKey) {
+    return (
+      <main className="mx-auto flex min-h-screen max-w-lg flex-col gap-6 bg-background px-4 py-10 text-muted-foreground">
+        <Link href="/" className="text-sm font-medium text-primary hover:text-primary/90">
+          ← Back to HUD
+        </Link>
+        <div className="rounded-2xl border border-border bg-card/40 p-6 text-sm leading-relaxed text-foreground">
+          <p>Workspace needs Clerk to map your Postgres rows to `profiles.user_id`.</p>
+          <p className="mt-3 text-muted-foreground">
+            Configure{" "}
+            <code className="rounded bg-secondary px-1 py-0.5 text-[11px]">
+              NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+            </code>
+            {" + "}
+            <code className="rounded bg-secondary px-1 py-0.5 text-[11px]">CLERK_SECRET_KEY</code>
+            , then revisit this route.
+          </p>
+        </div>
+      </main>
+    )
+  }
+
+  // ClerkProvider is in the tree (app/layout.tsx) when clerkKey exists
+  return <WorkspaceContent />
 }
