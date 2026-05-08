@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { ClerkProvider } from '@clerk/nextjs'
 import './globals.css'
+import { clerkPublishableKeyOrNull } from '@/lib/clerk-config'
 
 const geist = Geist({ 
   subsets: ["latin"],
@@ -13,26 +15,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'XQuest | Citizen Space Exploration',
-  description: 'Scout the cosmos. Discover Earth 2.0 candidates. Join the global mission to find habitable exoplanets using real Gaia DR3 data.',
-  keywords: ['astronomy', 'exoplanets', 'citizen science', 'Gaia', 'space exploration', 'Earth 2.0'],
-  generator: 'v0.app',
+  title: 'ExoQuest | Community Quest for K Dwarfs and Exoplanets',
+  description: 'Join the community quest to discover K-Dwarf stars and exoplanet candidates. Scout the cosmos using real Gaia DR3 data and help find Earth 2.0.',
+  keywords: ['astronomy', 'exoplanets', 'K dwarfs', 'citizen science', 'Gaia DR3', 'space exploration', 'Earth 2.0'],
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    apple: '/icon.svg',
   },
 }
 
@@ -49,11 +37,23 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const key = clerkPublishableKeyOrNull()
+
+  const inner = (
+    <>
+      {children}
+      {process.env.NODE_ENV === 'production' && <Analytics />}
+    </>
+  )
+
   return (
     <html lang="en" className="bg-[#0B0E14]">
       <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased`}>
-        {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {key ? (
+          <ClerkProvider publishableKey={key}>
+            {inner}
+          </ClerkProvider>
+        ) : inner}
       </body>
     </html>
   )

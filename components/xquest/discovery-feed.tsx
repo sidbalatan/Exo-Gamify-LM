@@ -37,13 +37,15 @@ function generateDiscovery() {
 }
 
 export function DiscoveryFeed() {
-  const [discoveries, setDiscoveries] = useState(() => 
-    Array.from({ length: 3 }, generateDiscovery)
-  )
+  const [discoveries, setDiscoveries] = useState<ReturnType<typeof generateDiscovery>[]>([])
 
   useEffect(() => {
+    queueMicrotask(() =>
+      setDiscoveries(Array.from({ length: 3 }, generateDiscovery)),
+    )
+
     const interval = setInterval(() => {
-      setDiscoveries(prev => {
+      setDiscoveries((prev) => {
         const newDiscovery = generateDiscovery()
         return [newDiscovery, ...prev.slice(0, 4)]
       })

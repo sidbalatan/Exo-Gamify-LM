@@ -8,8 +8,17 @@ __v0_jsx-dev-runtime.ts
 
 # Environment variables
 .env*.local
+backend/.env
 
 # Common ignores
 node_modules
 .next/
+.turbo
+*.tsbuildinfo
 .DS_Store
+npm-debug.log*
+pnpm-debug.log*
+
+# Python backend
+backend/.venv/
+backend/**/__pycache__/
