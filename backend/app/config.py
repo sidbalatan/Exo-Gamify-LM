@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     # Local filesystem blob store (absolute or relative to API cwd). Required for /assets upload & download.
     workspace_blob_root: str | None = None
 
+    # ExoReg: min distinct users voting one side vs the other to set published_label
+    exoreg_consensus_min_votes: int = 1
+
     @field_validator("clerk_audience", mode="before")
     @classmethod
     def empty_audience_to_none(cls, v: object) -> object:

@@ -45,6 +45,12 @@ Useful checks before a PR or deploy:
 | `pnpm build` | Production build (TypeScript errors fail the build) |
 | `pnpm verify` or `npm run verify` | lint + typecheck + build (no nested pnpm/npm) |
 
+### ExoReg (K-dwarf registry API)
+
+1. Ensure **`DATABASE_URL`** and Clerk settings are set in **`backend/.env`** (see **`backend/.env.example`**). Optional: **`EXOREG_CONSENSUS_MIN_VOTES`** (default `1`).
+2. Apply schema: run **`database/exoreg_ddl.sql`** against the same Postgres database (e.g. `psql "$DATABASE_URL" -f database/exoreg_ddl.sql` from the repo root, adjusting the path for the `backend` cwd if needed).
+3. With the FastAPI server up, signed-in players sync K-Dwarf Scout rounds via **`POST /v1/exoreg/classify`** (proxied from the Next app as **`POST /api/exoreg/classify`**). Export survivors: **`GET /v1/exoreg/pipeline-ready.csv`** (proxied as /**`GET /api/exoreg/pipeline-ready.csv`**).
+
 🛰️ Project Components
 1. ExoQuest (The Pipeline)
 A professional-grade scientific engine that pulls live data from the Gaia DR3 and TESS/MAST archives. It handles the "heavy lifting":

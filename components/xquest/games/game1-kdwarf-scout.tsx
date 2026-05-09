@@ -1,9 +1,11 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useAuth } from "@clerk/nextjs"
 import { Award, CheckCircle, HelpCircle, Star, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { gaiaSourceIdFromCardName, submitExoRegClassify, type ExoRegVotePayload } from "@/lib/exoreg-client"
 import { addExoRegEntry, addScore, addScoutedStar } from "@/lib/game-score"
 
 // ─── K-Dwarf Gold Standard criteria ──────────────────────────────────────────
@@ -245,6 +247,7 @@ function DropZone({
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function KDwarfScout() {
+  const { isSignedIn } = useAuth()
   const [round, setRound]             = useState(0)
   const [cards, setCards]             = useState<StarCard[]>([])
   const [selected, setSelected]       = useState<string | null>(null)
@@ -320,10 +323,37 @@ export function KDwarfScout() {
       const newStreak = streak + 1
       setStreak(newStreak)
       if (newStreak % 3 === 0) setShowBadge(true)
+
+      if (isSignedIn) {
+        const votes: ExoRegVotePayload[] = []
+        if (asKDwarf) {
+          votes.push({
+            gaia_source_id: gaiaSourceIdFromCardName(card.name),
+            vote: "validated_kdwarf",
+            display_label: card.name,
+          })
+          cards
+            .filter((c) => c.id !== cardId)
+            .forEach((c) => {
+              votes.push({
+                gaia_source_id: gaiaSourceIdFromCardName(c.name),
+                vote: "null_kdwarf",
+                display_label: c.name,
+              })
+            })
+        } else {
+          votes.push({
+            gaia_source_id: gaiaSourceIdFromCardName(card.name),
+            vote: "null_kdwarf",
+            display_label: card.name,
+          })
+        }
+        void submitExoRegClassify(votes, `round-${round}`)
+      }
     } else {
       setStreak(0)
     }
-  }, [phase, cards, retryMode, streak])
+  }, [phase, cards, retryMode, streak, round, isSignedIn])
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
     dragCardId.current = id

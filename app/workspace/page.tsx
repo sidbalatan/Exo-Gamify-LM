@@ -57,17 +57,20 @@ function formatBytes(n: number): string {
 }
 
 async function parseErrorMessage(res: Response): Promise<string> {
+  const raw = await res.text()
   try {
-    const data = await res.json()
+    const data = JSON.parse(raw) as {
+      detail?: unknown
+      error?: string
+    }
     if (typeof data?.detail === "string") return data.detail
     if (Array.isArray(data?.detail))
       return data.detail.map((d: unknown) => JSON.stringify(d)).join("; ")
-    if (data?.detail) return JSON.stringify(data.detail)
+    if (data?.detail != null) return JSON.stringify(data.detail)
     if (typeof data?.error === "string") return data.error
     return `${res.status} ${res.statusText}`
   } catch {
-    const t = await res.text()
-    return t?.slice(0, 280) ?? `${res.status} ${res.statusText}`
+    return raw?.slice(0, 280) || `${res.status} ${res.statusText}`
   }
 }
 
