@@ -9,6 +9,7 @@ import { DiscoveryFeed } from "@/components/xquest/discovery-feed"
 import { ExoRegSearch } from "@/components/xquest/exoreg-search"
 import { MissionProgress } from "@/components/xquest/mission-progress"
 import { BottomNav } from "@/components/xquest/bottom-nav"
+import { HudClerkAuth } from "@/components/xquest/hud-clerk-auth"
 
 const tabProgress: Record<string, number> = {
   scout: 12,
@@ -41,10 +42,13 @@ export default function ExoQuestPage() {
               </p>
             </div>
           </div>
-          <div className="rounded-full bg-primary/10 px-3 py-1">
-            <span className="font-mono text-xs font-semibold text-primary">
-              v1.0
-            </span>
+          <div className="flex items-center gap-2">
+            <HudClerkAuth />
+            <div className="rounded-full bg-primary/10 px-3 py-1">
+              <span className="font-mono text-xs font-semibold text-primary">
+                v1.0
+              </span>
+            </div>
           </div>
         </div>
       </header>
