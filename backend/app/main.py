@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import db as db_conn
 from app.config import settings
-from app.routers import gaia, labels, pipeline, workspace
+from app.routers import exoreg, gaia, labels, pipeline, workspace
 
 
 @asynccontextmanager
@@ -28,6 +28,7 @@ app.add_middleware(
 )
 
 app.include_router(workspace.router)
+app.include_router(exoreg.router)
 app.include_router(gaia.router)
 app.include_router(pipeline.router)
 app.include_router(labels.router)

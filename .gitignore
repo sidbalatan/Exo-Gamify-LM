@@ -17,3 +17,8 @@ node_modules
 .DS_Store
 npm-debug.log*
 pnpm-debug.log*
+/backend/data/
+
+# Python
+__pycache__/
+*.py[cod]
